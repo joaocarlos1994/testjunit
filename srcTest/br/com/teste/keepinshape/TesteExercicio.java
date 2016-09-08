@@ -1,7 +1,12 @@
 package br.com.teste.keepinshape;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.db4o.Db4o;
+import com.db4o.ObjectContainer;
+import com.db4o.ObjectSet;
 
 import br.com.keepinshape.Exercicio;
 import junit.framework.Assert;
@@ -9,10 +14,17 @@ import junit.framework.Assert;
 public class TesteExercicio {
 	
 	private TesteExercicio testeExercicio;
+	private ObjectContainer db;
+	private ObjectSet result;
 	
 	@Before
 	public void config(){
 		testeExercicio = new TesteExercicio();
+		db = Db4o.openFile("Teste.yap");
+	}
+	@After
+	public void afterTest(){
+		db.close();
 	}
 	
 
@@ -20,7 +32,10 @@ public class TesteExercicio {
 	public void testCreate(){
 		
 		Exercicio expected = new Exercicio(new Integer(1), "Supino", 60, 30, 3, 100);
-		Exercicio actual = new Exercicio(new Integer(1), "Supino", 60, 30, 3, 100);
+		db.store(expected);
+		
+		result = db.get(expected);
+		Exercicio actual = (Exercicio) result.next();
 		
 		testeExercicio.assertExercicio(expected, actual);
 		
