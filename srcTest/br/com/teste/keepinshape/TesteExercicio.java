@@ -1,30 +1,24 @@
 package br.com.teste.keepinshape;
 
-import org.junit.After;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 
-import com.db4o.Db4o;
-import com.db4o.ObjectContainer;
-import com.db4o.ObjectSet;
-
 import br.com.keepinshape.Exercicio;
+import br.com.keepinshape.core.ExercicioDAOImpl;
 import junit.framework.Assert;
 
 public class TesteExercicio {
 	
 	private TesteExercicio testeExercicio;
-	private ObjectContainer db;
-	private ObjectSet result;
+	private ExercicioDAOImpl exercicioDAOImpl;
+		
 	
 	@Before
 	public void config(){
 		testeExercicio = new TesteExercicio();
-		db = Db4o.openFile("Teste.yap");
-	}
-	@After
-	public void afterTest(){
-		db.close();
+		exercicioDAOImpl = new ExercicioDAOImpl();
 	}
 	
 
@@ -32,14 +26,40 @@ public class TesteExercicio {
 	public void testCreate(){
 		
 		Exercicio expected = new Exercicio(new Integer(1), "Supino", 60, 30, 3, 100);
-		db.store(expected);
+		exercicioDAOImpl.createExercicio(expected);
 		
-		result = db.get(expected);
-		Exercicio actual = (Exercicio) result.next();
+		Exercicio actual = exercicioDAOImpl.findByExercicio(expected);
 		
 		testeExercicio.assertExercicio(expected, actual);
 		
 	}
+	
+	@Test
+	public void testDelete(){
+		
+		Exercicio expected = new Exercicio(new Integer(2), "Supino A", 60, 30, 3, 100);
+		exercicioDAOImpl.createExercicio(expected);
+		exercicioDAOImpl.delete(expected);
+		
+		Exercicio actual = exercicioDAOImpl.findByExercicio(expected);
+		Assert.assertEquals(null, actual);
+		
+	}
+	
+	@Test
+	public void testFindAll(){
+		
+		Exercicio expected = new Exercicio(new Integer(2), "Supino A", 60, 30, 3, 100);
+		Exercicio expected2 = new Exercicio(new Integer(2), "Supino B", 60, 30, 3, 100);
+		exercicioDAOImpl.createExercicio(expected);
+		exercicioDAOImpl.createExercicio(expected2);
+		
+		List<Exercicio> exercicios = exercicioDAOImpl.findAllExercicio();
+		
+		Assert.assertEquals(2, exercicios.size());
+	}
+	
+	
 	
 	@SuppressWarnings("deprecation")
 	public void assertExercicio(Exercicio expected, Exercicio actual){
